@@ -1,4 +1,4 @@
-storagebin_js, a JavaScript wrapper library
+taskifier_js, a JavaScript wrapper library
 =============================================
 
 Object-oriented JavaScript library for abstracting out
@@ -14,7 +14,7 @@ https://developer.mozilla.org/en-US/docs/DOM/XMLHttpRequest/FormData#Browser_com
 Unit Test Environments
 ------------
 - Python 2.7 local server for
-[storagebin](https://github.com/jzerbe/storagebin)
+[taskifier](https://github.com/jzerbe/taskifier)
 running on Windows 7 (x64) with JS run via Firefox 21
 
 License

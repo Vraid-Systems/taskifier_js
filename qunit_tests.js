@@ -1,10 +1,8 @@
-var myDataId = -1;
+var myTaskId = -1;
 
 function loadDataId(theResponse) {
-    if (theResponse.contains("=")) {
-        var array = theResponse.split("=");
-        myDataId = array[1];
-    }
+    var aResponseObj = eval('(' + theResponse + ')');
+    myTaskId = aResponseObj.id;
 }
 
 var aOnLoadFunc = function(e) {
@@ -31,25 +29,25 @@ var aOnErrorFunc = function(e) {
 };
 
 asyncTest("PUT", 1, function() {
-    var aSBObj_PUT = new SBObj("example");
-    aSBObj_PUT.setOnLoad(aOnLoadFunc);
-    aSBObj_PUT.setOnError(aOnErrorFunc);
-    aSBObj_PUT.setApiBaseUrl("http://localhost:8000");
-    aSBObj_PUT.PUT("test text data to store", "text/plain");
+    var aTaskObj_PUT = new TaskObj("example");
+    aTaskObj_PUT.setOnLoad(aOnLoadFunc);
+    aTaskObj_PUT.setOnError(aOnErrorFunc);
+    aTaskObj_PUT.setApiBaseUrl("http://localhost:8000");
+    aTaskObj_PUT.PUT(aTaskObj_PUT.createTask("a@domain.com", "b@domain.com", "the content", new Date()));
 });
 
 asyncTest("GET", 1, function() {
-    var aSBObj = new SBObj("example", myDataId);
-    aSBObj.setOnLoad(aOnLoadFunc);
-    aSBObj.setOnError(aOnErrorFunc);
-    aSBObj.setApiBaseUrl("http://localhost:8000");
-    aSBObj.GET();
+    var aTaskObj_GET = new TaskObj("example", myTaskId);
+    aTaskObj_GET.setOnLoad(aOnLoadFunc);
+    aTaskObj_GET.setOnError(aOnErrorFunc);
+    aTaskObj_GET.setApiBaseUrl("http://localhost:8000");
+    aTaskObj_GET.GET();
 });
 
 asyncTest("DELETE", 1, function() {
-    var aSBObj = new SBObj("example", myDataId);
-    aSBObj.setOnLoad(aOnLoadFunc);
-    aSBObj.setOnError(aOnErrorFunc);
-    aSBObj.setApiBaseUrl("http://localhost:8000");
-    aSBObj.DELETE();
+    var aTaskObj_DELETE = new TaskObj("example", myTaskId);
+    aTaskObj_DELETE.setOnLoad(aOnLoadFunc);
+    aTaskObj_DELETE.setOnError(aOnErrorFunc);
+    aTaskObj_DELETE.setApiBaseUrl("http://localhost:8000");
+    aTaskObj_DELETE.DELETE();
 });

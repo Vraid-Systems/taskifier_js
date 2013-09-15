@@ -1,16 +1,16 @@
 /**
- * JavaScript Object library for asynchronously interacting with a storagebin
+ * JavaScript Object library for asynchronously interacting with a taskifier
  * service using Cross-Origin Resource Sharing. NO jQuery needed.
- * 
+ *
  * CORS browser support minimums: Gecko 1.9.1 (Firefox 3.5, SeaMonkey 2.0),
  * Safari 4, Google Chrome 3, MSHTML/Trident 4.0 (Internet Explorer 8) via
  * XDomainRequest, Opera 12.00, Opera Mobile 12
  * http://en.wikipedia.org/wiki/Cross-origin_resource_sharing#Browser_support
- * 
+ *
  * `getDefault` method body taken from http://stackoverflow.com/a/894877
  */
-function SBObj(theOwnerKey, theDataId) {
-    var private_ApiBaseUrl = "https://storagebin.appspot.com";
+function TaskObj(theOwnerKey, theTaskId) {
+    var private_ApiBaseUrl = "https://taskifier.appspot.com";
     var private_DATA_BASE_URL = "/data";
 
     var private_METHOD_DELETE = "DELETE";
@@ -37,11 +37,11 @@ function SBObj(theOwnerKey, theDataId) {
     };
 
     var private_OwnerKey = this.getDefault(theOwnerKey, false);
-    var private_DataId = this.getDefault(theDataId, false);
+    var private_TaskId = this.getDefault(theTaskId, false);
 
     /**
      * create a CORS request object
-     * 
+     *
      * @param method {String}
      * @param url {String}
      * @returns {XMLHttpRequest}
@@ -61,7 +61,7 @@ function SBObj(theOwnerKey, theDataId) {
 
     /**
      * create the String representation of the data end point URL
-     * 
+     *
      * @param isPut {Boolean}
      * @returns {String}
      */
@@ -72,8 +72,8 @@ function SBObj(theOwnerKey, theDataId) {
             aRetEventUrl += "/" + private_OwnerKey;
         }
 
-        if (!isPut && private_DataId) {
-            aRetEventUrl += "/" + private_DataId;
+        if (!isPut && private_TaskId) {
+            aRetEventUrl += "/" + private_TaskId;
         }
 
         return aRetEventUrl;
@@ -81,59 +81,72 @@ function SBObj(theOwnerKey, theDataId) {
 
     /**
      * kick-off the CORS data end point interaction
-     * 
+     *
      * @param method {String}
-     * @param theDataObj {Object} - must contain fields "type" and "content"
+     * @param theTaskObj {Object} - must contain fields "type" and "content"
      */
-    function private_SendDataObj(method, theDataObj) {
-        if (method && theDataObj && theDataObj.content) {
+    function private_SendTaskObj(method, theTaskObj) {
+        if (method && theTaskObj && theTaskObj.content) {
             var aRequest = private_CreateRequest(method,
                     private_CreateRequestUrl((method === private_METHOD_POST)));
 
             if (aRequest) {
-                if (theDataObj.type) {
-                    aRequest.setRequestHeader("Content-Type", theDataObj.type);
+                if (theTaskObj.type) {
+                    aRequest.setRequestHeader("Content-Type", theTaskObj.type);
                 }
 
                 aRequest.onload = private_OnLoad;
                 aRequest.onerror = private_OnError;
 
-                aRequest.send(theDataObj.content);
+                aRequest.send(theTaskObj.content);
             }
         }
     }
 
     this.DELETE = function() {
-        var aDataObj = {
+        var aTaskObj = {
             "type": "application/json",
             "content": "{}"
         };
-        // no content needed
-        private_SendDataObj(private_METHOD_DELETE, aDataObj);
+        private_SendTaskObj(private_METHOD_DELETE, aTaskObj);
     };
 
     this.GET = function() {
-        var aDataObj = {
+        var aTaskObj = {
             "type": "application/json",
             "content": "{}"
         };
-        // no content needed
-        private_SendDataObj(private_METHOD_GET, aDataObj);
+        private_SendTaskObj(private_METHOD_GET, aTaskObj);
     };
 
-    this.PUT = function(theData, theDataContentType) {
-        theDataContentType = this.getDefault(theDataContentType, "text/plain");
-        var aBlob = new Blob([ theData ], {
-            type: theDataContentType
-        });
+    this.PUT = function(theTask) {
+        var params = "";
 
-        var aFormData = new FormData();
-        aFormData.append("file", aBlob);
-        var aDataObj = {
-            "type": false,
-            "content": aFormData
+        for (var key in theTask) {
+            if(theTask.hasOwnProperty(key)){
+                var value = theTask[key];
+                if (params == "") {
+                    params = key + "=" + value;
+                } else {
+                    params += "&" + key + "=" + value;
+                }
+            }
+        }
+
+        var aTaskObj = {
+            "type": "application/json",
+            "content": params
         };
-
-        private_SendDataObj(private_METHOD_POST, aDataObj);
+        private_SendTaskObj(private_METHOD_POST, aTaskObj);
     };
 }
+
+TaskObj.prototype.createTask = function(theSource, theDest, theContent, theReadyDate) {
+    var aTaskObj = {
+        "source": theSource,
+        "dest": theDest,
+        "content": theContent,
+        "ready_time": theReadyDate.toJSON()
+    };
+    return aTaskObj;
+};
